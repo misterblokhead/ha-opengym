@@ -36,15 +36,17 @@ grep -q '"ok":true' <<<"$HEALTH" || fail "health is not ok: $HEALTH"
 HEADERS=$(curl -sI "$URL/")
 grep -qi '^X-Frame-Options: SAMEORIGIN' <<<"$HEADERS" || fail "X-Frame-Options is not SAMEORIGIN"
 grep -i '^Content-Security-Policy:' <<<"$HEADERS" | grep -q "frame-ancestors 'self'" || fail "CSP lacks frame-ancestors 'self'"
-docker logs "$NAME" 2>&1 | grep -q 'rpID=ha.example.test' || fail "log lacks rpID=ha.example.test"
+LOGS=$(docker logs "$NAME" 2>&1)
+grep -q 'rpID=ha.example.test' <<<"$LOGS" || fail "log lacks rpID=ha.example.test"
 [ "$(cat "$DATA/address")" = "https://ha.example.test" ] || fail "/data/address is not https://ha.example.test"
 
 # Second run, other address: the change is logged.
 start https://other.example.test
 for _ in $(seq 30); do
-  docker logs "$NAME" 2>&1 | grep -q 'The address changed' && break
+  LOGS=$(docker logs "$NAME" 2>&1)
+  grep -q 'The address changed' <<<"$LOGS" && break
   sleep 1
 done
-docker logs "$NAME" 2>&1 | grep -q 'The address changed' || fail "no 'The address changed' warning"
+grep -q 'The address changed' <<<"$LOGS" || fail "no 'The address changed' warning"
 
 echo "OK"
