@@ -6,7 +6,6 @@ arch: [amd64, aarch64]
 init: false
 homeassistant_api: true
 ingress: true
-watchdog: http://[HOST]:[PORT:8099]/api/health
 panel_icon: mdi:dumbbell
 panel_title: openGym
 panel_admin: false
