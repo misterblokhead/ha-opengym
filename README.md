@@ -7,17 +7,17 @@ This is a repackaging. Home Assistant builds it on your machine from the officia
 ## Install
 
 1. In Home Assistant, open **Settings > Apps > Install apps** (the page is called App store), open the three-dot menu at the top right, choose **Repositories** and then **Add**, and add `https://github.com/misterblokhead/ha-opengym`.
-2. Install **openGym** and start it.
-3. Switch on **Show in sidebar**.
+2. Install **openGym**. If you open Home Assistant at your own domain, set `address` on its Configuration tab now, before the first start, for example `https://home.example.com`.
+3. Start it and switch on **Show in sidebar**.
 4. Switch on **Watchdog**. If openGym stops working, the app stops, and Home Assistant restarts it only when Watchdog is on.
 
 The app needs one address: the https address people open Home Assistant at. It looks for it in this order:
 
 1. The `address` option, if you set it.
-2. The Nabu Casa address.
-3. Home Assistant's https external URL.
+2. Home Assistant's https external URL.
+3. The Nabu Casa address, when remote access is on.
 
-If none is found, the app does not start and the app's Log tab tells you to set `address`. Set it yourself if you open Home Assistant at your own domain, for example `https://home.example.com`.
+If none is found, or the address is not https or has a path, the app does not start and the app's Log tab tells you to set `address`.
 
 ## Options
 
@@ -41,7 +41,7 @@ Do not use the Home Assistant phone app. Its built-in browser cannot do passkeys
 
 ## Never change the address after people have signed up
 
-Passkeys are tied to the address they were made at. The app stores the address it used first. If the address changes later, the log warns that passkeys made for the old address stop working, and repeats the warning on every start. Set the old address back to make them work again.
+Passkeys are tied to the address they were made at. The app stores the address once openGym holds data (from its second start on). If the address changes later, the log warns that passkeys made for the old address stop working, and repeats the warning on every start. Set the old address back to make them work again.
 
 ## openGym's own phone app
 

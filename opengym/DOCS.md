@@ -4,15 +4,15 @@ A self-hosted gym log in your Home Assistant sidebar. It runs the official [open
 
 ## Setup
 
-1. Start the app and switch on **Show in sidebar**.
-2. Switch on **Watchdog**. If openGym stops working, the app stops, and Home Assistant restarts it only when Watchdog is on.
-3. Set `address` if you open Home Assistant at your own domain, for example `https://home.example.com`.
+1. Set `address` if you open Home Assistant at your own domain, for example `https://home.example.com`. Do this before the first start.
+2. Start the app and switch on **Show in sidebar**.
+3. Switch on **Watchdog**. If openGym stops working, the app stops, and Home Assistant restarts it only when Watchdog is on.
 
 ## Address
 
-The app needs the https address people open Home Assistant at. It uses the `address` option, else the Nabu Casa address, else Home Assistant's https external URL. If none is found, the app does not start and the app's Log tab says to set `address`.
+The app needs the https address people open Home Assistant at. It uses the `address` option, else Home Assistant's https external URL, else the Nabu Casa address when remote access is on. If none is found, or the address is not https or has a path, the app does not start and the app's Log tab says to set `address`.
 
-Do not change the address after people have signed up. Passkeys are tied to it. If it changes, the log warns that passkeys made for the old address stop working. Set the old address back to make them work again.
+Do not change the address after people have signed up. Passkeys are tied to it. The app stores it once openGym holds data (from its second start on). If it changes, the log warns that passkeys made for the old address stop working. Set the old address back to make them work again.
 
 ## Invite only
 

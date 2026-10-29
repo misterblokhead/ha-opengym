@@ -1,3 +1,4 @@
+# ChallengeHouse (custom_components/fitbridge/opengym_app.py) relies on the slug, the options and ingress port 8099.
 name: openGym
 version: "1.0.0"
 slug: opengym
