@@ -2,14 +2,14 @@
 
 A Home Assistant app that runs [openGym](https://gitlab.com/DuarteSantos8/opengym), a self-hosted gym log, in the Home Assistant sidebar.
 
-This is a repackaging. Home Assistant builds it on your machine from the official openGym images, pinned to one version (1.4.3 for now). Nothing of openGym is changed except two headers (`X-Frame-Options SAMEORIGIN` and CSP `frame-ancestors 'self'`) that let the page show inside Home Assistant. The app also passes each visitor's real address to openGym, which it uses for its rate limit and activity log.
+This is a repackaging. Home Assistant builds it on your machine from the official openGym images, pinned to one version (1.4.3 for now). Nothing of openGym is changed except two headers (`X-Frame-Options SAMEORIGIN` and CSP `frame-ancestors 'self'`) that let the page show inside Home Assistant. The app also passes each visitor's real address to openGym, which it uses for its sign-in attempt limits.
 
 ## Install
 
-1. In Home Assistant, open **Settings > Apps > App store**, open the menu (top right), choose **Repositories** and add `https://github.com/misterblokhead/ha-opengym`.
+1. In Home Assistant, open **Settings > Apps > Install apps** (the page is called App store), open the three-dot menu at the top right, choose **Repositories** and then **Add**, and add `https://github.com/misterblokhead/ha-opengym`.
 2. Install **openGym** and start it.
 3. Switch on **Show in sidebar**.
-4. Switch on **Watchdog**. If openGym's API or web server stops, the app exits, and Home Assistant restarts it only when Watchdog is on.
+4. Switch on **Watchdog**. If openGym stops working, the app stops, and Home Assistant restarts it only when Watchdog is on.
 
 The app needs one address: the https address people open Home Assistant at. It looks for it in this order:
 
@@ -17,7 +17,7 @@ The app needs one address: the https address people open Home Assistant at. It l
 2. The Nabu Casa address.
 3. Home Assistant's https external URL.
 
-If none is found, the app does not start and the log tells you to set `address`. Set it yourself if you open Home Assistant at your own domain, for example `https://home.example.com`.
+If none is found, the app does not start and the app's Log tab tells you to set `address`. Set it yourself if you open Home Assistant at your own domain, for example `https://home.example.com`.
 
 ## Options
 
@@ -35,7 +35,7 @@ Do not switch it on from the start. With it on, nobody can make the first profil
 
 ## Use it in a browser
 
-Open Home Assistant in a browser at its https address and use openGym from the sidebar. Passkeys work there, for example in Chrome.
+Open Home Assistant in Chrome (or another browser) at its https address and use openGym from the sidebar. Passkeys work there.
 
 Do not use the Home Assistant phone app. Its built-in browser cannot do passkeys. On your phone, open Home Assistant in the phone's browser and add it to the home screen.
 
