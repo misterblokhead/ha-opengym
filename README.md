@@ -1,0 +1,62 @@
+# openGym for Home Assistant
+
+A Home Assistant app that runs [openGym](https://gitlab.com/DuarteSantos8/opengym), a self-hosted gym log, in the Home Assistant sidebar.
+
+This is a repackaging. Home Assistant builds it on your machine from the official openGym images, pinned to one version (1.4.3 for now). Nothing of openGym is changed except two headers (`X-Frame-Options SAMEORIGIN` and CSP `frame-ancestors 'self'`) that let the page show inside Home Assistant. The app also passes each visitor's real address to openGym, which it uses for its rate limit and activity log.
+
+## Install
+
+1. In Home Assistant, open **Settings > Apps > App store**, open the menu (top right), choose **Repositories** and add `https://github.com/misterblokhead/ha-opengym`.
+2. Install **openGym** and start it.
+3. Switch on **Show in sidebar**.
+4. Switch on **Watchdog**. If openGym's API or web server stops, the app exits, and Home Assistant restarts it only when Watchdog is on.
+
+The app needs one address: the https address people open Home Assistant at. It looks for it in this order:
+
+1. The `address` option, if you set it.
+2. The Nabu Casa address.
+3. Home Assistant's https external URL.
+
+If none is found, the app does not start and the log tells you to set `address`. Set it yourself if you open Home Assistant at your own domain, for example `https://home.example.com`.
+
+## Options
+
+| Option | Default | What it does |
+| --- | --- | --- |
+| `address` | empty | The https address people open Home Assistant at. Empty means detect it. |
+| `invite_only` | `false` | Only people with an invite can make a profile. |
+| `first_user_admin` | `true` | The first profile made becomes the admin. |
+
+## First profile, then invite only
+
+Make your own profile first (the button is called **Create new profile**). Then switch `invite_only` on and restart the app.
+
+Do not switch it on from the start. With it on, nobody can make the first profile.
+
+## Use it in a browser
+
+Open Home Assistant in a browser at its https address and use openGym from the sidebar. Passkeys work there, for example in Chrome.
+
+Do not use the Home Assistant phone app. Its built-in browser cannot do passkeys. On your phone, open Home Assistant in the phone's browser and add it to the home screen.
+
+## Never change the address after people have signed up
+
+Passkeys are tied to the address they were made at. The app stores the address it used first. If the address changes later, the log warns that passkeys made for the old address stop working, and repeats the warning on every start. Set the old address back to make them work again.
+
+## openGym's own phone app
+
+openGym has its own phone app. It cannot connect through Nabu Casa, because every request needs a Home Assistant login. If you want to use it, run openGym on its own address instead, for example over Tailscale. See the openGym section of the [ChallengeHouse README](https://github.com/misterblokhead/ha-challengehouse) (route B).
+
+## Updates
+
+Each release is pinned to one openGym version. The [changelog](opengym/CHANGELOG.md) names it. Home Assistant offers a backup before it updates an app.
+
+## Links
+
+- [ChallengeHouse](https://github.com/misterblokhead/ha-challengehouse) uses this app for gym tracking.
+- [openGym](https://gitlab.com/DuarteSantos8/opengym) is the project this repackages.
+- [mzspicoli/opengym-homeassistant](https://github.com/mzspicoli/opengym-homeassistant) is the other community app for openGym. This one differs by using the official images pinned to a version, and by handling the passkey address (detecting it, storing it, warning when it changes).
+
+## Licence
+
+This repository is MIT. openGym itself is AGPL-3.0.
