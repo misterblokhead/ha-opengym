@@ -6,6 +6,10 @@ This is a repackaging. Home Assistant builds it on your machine from the officia
 
 ## Install
 
+[![Open your Home Assistant instance and add this app repository.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fmisterblokhead%2Fha-opengym)
+
+Or by hand:
+
 1. In Home Assistant, open **Settings > Apps > Install apps** (the page is called App store), open the three-dot menu at the top right, choose **Repositories** and then **Add**, and add `https://github.com/misterblokhead/ha-opengym`.
 2. Install **openGym**. If you open Home Assistant at your own domain, set `address` on its Configuration tab now, before the first start, for example `https://home.example.com`.
 3. Start it and switch on **Show in sidebar**.
