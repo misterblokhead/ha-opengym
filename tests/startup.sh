@@ -40,6 +40,13 @@ options https://ha.example.test/lovelace
 OUT=$(docker run --rm -v "$DATA:/data" "$IMG" 2>&1) && fail "started with a path in the address"
 grep -q 'is not an https address without a path' <<<"$OUT" || fail "no message for an address with a path: $OUT"
 
+# Nor does an IP address: passkeys never work on one.
+for ip in https://192.0.2.1 'https://[2001:db8::1]'; do
+  options "$ip"
+  OUT=$(docker run --rm -v "$DATA:/data" "$IMG" 2>&1) && fail "started with the IP address $ip"
+  grep -q 'or it is an IP address' <<<"$OUT" || fail "no message for the IP address $ip: $OUT"
+done
+
 start https://ha.example.test/
 healthy
 HEALTH=$(curl -sf "$URL/api/health") || fail "no health answer"

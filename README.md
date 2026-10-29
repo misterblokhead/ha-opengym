@@ -21,7 +21,7 @@ The app needs one address: the https address people open Home Assistant at. It l
 2. Home Assistant's https external URL.
 3. The Nabu Casa address, when remote access is on.
 
-If none is found, or the address is not https or has a path, the app does not start and the app's Log tab tells you to set `address`.
+If none is found, or the address is not https, has a path or is an IP address (passkeys never work on one), the app does not start and the app's Log tab tells you to set `address`.
 
 ## Options
 

@@ -10,7 +10,7 @@ A self-hosted gym log in your Home Assistant sidebar. It runs the official [open
 
 ## Address
 
-The app needs the https address people open Home Assistant at. It uses the `address` option, else Home Assistant's https external URL, else the Nabu Casa address when remote access is on. If none is found, or the address is not https or has a path, the app does not start and the app's Log tab says to set `address`.
+The app needs the https address people open Home Assistant at. It uses the `address` option, else Home Assistant's https external URL, else the Nabu Casa address when remote access is on. If none is found, or the address is not https, has a path or is an IP address (passkeys never work on one), the app does not start and the app's Log tab says to set `address`.
 
 Do not change the address after people have signed up. Passkeys are tied to it. The app stores it once openGym holds data (from its second start on). If it changes, the log warns that passkeys made for the old address stop working. Set the old address back to make them work again.
 

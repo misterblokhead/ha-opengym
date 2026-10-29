@@ -7,9 +7,10 @@ flag() { [ "$(opt "$1")" = true ] && echo 1 || echo 0; }
 ADDRESS=$(opt address)
 [ -n "$ADDRESS" ] || ADDRESS=$(node /opt/opengym/address.mjs)
 [ -n "$ADDRESS" ] || { echo 'No address found: set "address" to the https address people open Home Assistant at'; exit 1; }
-# The origin and its host, only for an https address without a path, query or fragment (a path in ORIGIN breaks every passkey).
-set -- $(node -e 'try{const u=new URL(process.argv[1]);if(u.protocol==="https:"&&u.hostname&&u.pathname==="/"&&!u.search&&!u.hash&&!u.username&&!u.password)console.log(u.origin,u.hostname)}catch{}' "$ADDRESS")
-[ $# -eq 2 ] || { echo "\"$ADDRESS\" is not an https address without a path: set \"address\" to the address people open Home Assistant at, for example https://home.example.com"; exit 1; }
+# The origin and its host, only for an https host name without a path, query or fragment (a path in ORIGIN breaks every
+# passkey, and passkeys never work on an IP address).
+set -- $(node -e 'try{const u=new URL(process.argv[1]);if(u.protocol==="https:"&&u.hostname&&!require("net").isIP(u.hostname.replace(/^\[|\]$/g,""))&&u.pathname==="/"&&!u.search&&!u.hash&&!u.username&&!u.password)console.log(u.origin,u.hostname)}catch{}' "$ADDRESS")
+[ $# -eq 2 ] || { echo "\"$ADDRESS\" is not an https address without a path, or it is an IP address: set \"address\" to the address people open Home Assistant at, for example https://home.example.com"; exit 1; }
 ORIGIN=$1 RP_ID=$2
 # The token reaches Core's API: only address.mjs needs it, not openGym or nginx.
 unset SUPERVISOR_TOKEN HASSIO_TOKEN
