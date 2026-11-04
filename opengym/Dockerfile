@@ -6,7 +6,10 @@ RUN printf '%s' "$CONTENT_SECURITY_POLICY" | sed "s/frame-ancestors 'none'/frame
  && grep -q "frame-ancestors 'self'" /tmp/csp
 
 FROM ghcr.io/duartesantos8/opengym-api:1.4.3@sha256:21d1fde39470d9c91424db51be64f5dd57c75b0b493345016f1d6e268dceae16
-RUN apk add --no-cache nginx gettext
+# su-exec starts openGym and nginx as unprivileged users. nginx's "user" line only applies to a root master.
+RUN apk add --no-cache nginx gettext su-exec \
+ && sed -i '/^user nginx;$/d' /etc/nginx/nginx.conf \
+ && ! grep -q '^user ' /etc/nginx/nginx.conf
 COPY --from=web /usr/share/nginx/html /usr/share/nginx/html
 COPY --from=web /etc/nginx/templates/default.conf.template /etc/opengym/nginx.conf.template
 COPY --from=web /tmp/csp /etc/opengym/csp
