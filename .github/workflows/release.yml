@@ -1,0 +1,29 @@
+name: Release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the version and take its changelog section
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -eu
+          VERSION="${TAG#v}"
+          CONFIG=$(sed -n 's/^version: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' opengym/config.yaml)
+          [ "$CONFIG" = "$VERSION" ] || { echo "Tag $TAG but opengym/config.yaml says version $CONFIG"; exit 1; }
+          # The section runs from "## [X.Y.Z] (openGym A.B.C)" to the next "## " heading.
+          awk -v v="$VERSION" 'index($0, "## [" v "]") == 1 { found = 1; print substr($0, length(v) + 6) > "title.txt"; next }
+            found && /^## / { exit } found { print }
+            END { if (!found) exit 1 }' opengym/CHANGELOG.md > notes.md \
+            || { echo "opengym/CHANGELOG.md has no '## [$VERSION]' section"; exit 1; }
+          echo "TITLE=$TAG$(cat title.txt)" >> "$GITHUB_ENV"
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --title "$TITLE" --notes-file notes.md --verify-tag
