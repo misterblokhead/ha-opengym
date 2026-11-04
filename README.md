@@ -79,6 +79,13 @@ Built with Claude Code and reviewed by a human before each release. Every push i
 
 The test does not cover address detection through Home Assistant, ingress or the real-address handling, or the aarch64 build. A CodeQL scan checks `address.mjs`.
 
+## Project status
+
+This app is young: the repository was created in October 2026. It repackages openGym by its author, so most of what the app does is upstream's. Releases and the [CHANGELOG](opengym/CHANGELOG.md) are the readable history.
+
+- **Tested in CI:** the add-on linter, a startup test, and a build for amd64. aarch64 images are built from the same pinned upstream images but are not tested.
+- **Maintained by one person.** Packaging bugs and questions: [open an issue](https://github.com/misterblokhead/ha-opengym/issues). openGym's own bugs go upstream. Security reports: see [SECURITY.md](SECURITY.md).
+
 ## Updates
 
 Each release is pinned to one openGym version. The [changelog](opengym/CHANGELOG.md) names it. Home Assistant offers a backup before it updates an app.
