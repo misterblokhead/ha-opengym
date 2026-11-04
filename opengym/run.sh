@@ -4,16 +4,20 @@ set -e
 opt() { node -e "try{const v=require('/data/options.json')['$1'];process.stdout.write(v==null?'':String(v))}catch{}"; }
 flag() { [ "$(opt "$1")" = true ] && echo 1 || echo 0; }
 
-ADDRESS=$(opt address)
-[ -n "$ADDRESS" ] || ADDRESS=$(node /opt/opengym/address.mjs)
+# The Supervisor token reaches Core's whole API and only address.mjs needs it. Find the address, then re-exec this script
+# without the token: exec replaces PID 1's environment (/proc/1/environ), so no process holds the token from here on.
+if [ $# -eq 0 ]; then
+  ADDRESS=$(opt address)
+  [ -n "$ADDRESS" ] || ADDRESS=$(node /opt/opengym/address.mjs)
+  exec env -u SUPERVISOR_TOKEN -u HASSIO_TOKEN /opt/opengym/run.sh "$ADDRESS"
+fi
+ADDRESS=$1
 [ -n "$ADDRESS" ] || { echo 'No address found: set "address" to the https address people open Home Assistant at'; exit 1; }
 # The origin and its host, only for an https host name without a path, query or fragment (a path in ORIGIN breaks every
 # passkey, and passkeys never work on an IP address).
 set -- $(node -e 'try{const u=new URL(process.argv[1]);if(u.protocol==="https:"&&u.hostname&&!require("net").isIP(u.hostname.replace(/^\[|\]$/g,""))&&u.pathname==="/"&&!u.search&&!u.hash&&!u.username&&!u.password)console.log(u.origin,u.hostname)}catch{}' "$ADDRESS")
 [ $# -eq 2 ] || { echo "\"$ADDRESS\" is not an https address without a path, or it is an IP address: set \"address\" to the address people open Home Assistant at, for example https://home.example.com"; exit 1; }
 ORIGIN=$1 RP_ID=$2
-# The token reaches Core's API: only address.mjs needs it, not openGym or nginx.
-unset SUPERVISOR_TOKEN HASSIO_TOKEN
 
 # Passkeys are bound to the address they were made at: remember it once openGym holds data, warn when it changes.
 if [ -f /data/address ]; then
@@ -27,8 +31,11 @@ INVITE_ONLY=$(flag invite_only)
 FIRST_USER_ADMIN=$(flag first_user_admin)
 export ORIGIN RP_ID INVITE_ONLY FIRST_USER_ADMIN RP_NAME=openGym DATA_DIR=/data/opengym PORT=3000 TRUST_PROXY=1 ALLOW_GUEST=0 PASSWORD_LOGIN=0 NODE_ENV=production
 mkdir -p "$DATA_DIR"
+# openGym runs as coach, the api image's own unprivileged user. Hands over data that root-run versions (before 1.1.0)
+# wrote; nothing of coach's runs yet, so nothing can swap a file for a link meanwhile, and -h never follows one.
+find "$DATA_DIR" ! -user coach -exec chown -h coach:coach {} +
 cd /app
-node server.js &
+su-exec coach node server.js &
 API=$!
 
 # 8099 is the ingress port ChallengeHouse (custom_components/fitbridge/opengym_app.py) connects to.
@@ -36,7 +43,8 @@ export NGINX_PORT=8099 BACKEND=127.0.0.1 RESOLVER=127.0.0.1 BASE_PATH= CF_CONNEC
 CONTENT_SECURITY_POLICY=$(cat /etc/opengym/csp)
 export CONTENT_SECURITY_POLICY
 envsubst '$NGINX_PORT $BACKEND $PORT $RESOLVER $BASE_PATH $CF_CONNECTING_IP $MEDIA_UPLOAD_MAX $CONTENT_SECURITY_POLICY' < /etc/opengym/nginx.conf.template > /etc/nginx/http.d/default.conf
-nginx -g 'daemon off;' &
+# nginx runs as its own unprivileged user; its pid, temp and log paths are Alpine's defaults, which that user owns.
+su-exec nginx nginx -g 'daemon off;' &
 NGINX=$!
 
 # Stop node first, then nginx. Either process dying ends the app; the Supervisor restarts it only when Watchdog is on.

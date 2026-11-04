@@ -53,13 +53,13 @@ openGym has its own phone app. It cannot connect through Nabu Casa, because ever
 
 ## What this touches
 
-**Permissions.** The app asks for one: `homeassistant_api`. It is used only when `address` is empty, by [`address.mjs`](opengym/address.mjs) at start-up, over the Supervisor's Core websocket (`ws://supervisor/core/websocket`) with three messages: `auth`, `get_config` (to read the external URL) and `cloud/status` (to read whether Nabu Casa remote access is on and its address). Nothing is written to Home Assistant. [`run.sh`](opengym/run.sh) then removes the token from the environment before it starts openGym and nginx. It does not ask for the Supervisor API, host network, devices, or access to your Home Assistant config folder.
+**Permissions.** The app asks for one: `homeassistant_api`. It is used only when `address` is empty, by [`address.mjs`](opengym/address.mjs) at start-up, over the Supervisor's Core websocket (`ws://supervisor/core/websocket`) with three messages: `auth`, `get_config` (to read the external URL) and `cloud/status` (to read whether Nabu Casa remote access is on and its address). Nothing is written to Home Assistant. It does not ask for the Supervisor API, host network, devices, or access to your Home Assistant config folder.
 
-Note that this token can use Home Assistant's API with full rights, and openGym runs as root in the same container, so it could still read the token from the start-up process. Setting `address` yourself does not take the permission away; the permission is what makes address detection work.
+The Supervisor gives the app a token that can use Home Assistant's API with full rights. Only the start-up step holds it: once the address is known, [`run.sh`](opengym/run.sh) replaces itself (`exec`) with a copy that has no token, so no process in the app holds it while openGym runs. openGym then runs as the unprivileged user `coach` (the openGym image's own) and nginx as the unprivileged user `nginx`; the start-up script stays root only to stop them. What remains: the token is still in the container's settings, so anything started with `docker exec`, including the image's health check (`wget`, every 10 seconds, as root), gets it for its lifetime; openGym's user cannot read a root process's environment. Setting `address` yourself does not take the permission away; the permission is what makes address detection work.
 
 **Ports.** None on your network. openGym is reachable only through Home Assistant's ingress (the sidebar), on port 8099 inside Home Assistant's internal app network. The openGym API also listens on port 3000 inside that same internal network.
 
-**Outbound calls.** The app's own code makes none apart from the Supervisor call above. No telemetry. Nothing is downloaded at start-up. When Home Assistant builds the app (install and update), it pulls the two openGym images from `ghcr.io` and installs `nginx` and `gettext` from Alpine's package mirrors. openGym itself only reaches out for features you switch on in it, such as push notifications and webhooks.
+**Outbound calls.** The app's own code makes none apart from the Supervisor call above. No telemetry. Nothing is downloaded at start-up. When Home Assistant builds the app (install and update), it pulls the two openGym images from `ghcr.io` and installs `nginx`, `gettext` and `su-exec` from Alpine's package mirrors. openGym itself only reaches out for features you switch on in it, such as push notifications and webhooks.
 
 **Data.** Everything lives in the app's `/data` folder, which Home Assistant includes in its backups: `/data/opengym` (openGym's users, passkeys, workouts and uploads) and `/data/address` (the stored address).
 
@@ -75,7 +75,8 @@ Built with Claude Code and reviewed by a human before each release. Every push i
 - with a good address it starts and openGym's health check answers ok;
 - the two changed headers are served;
 - openGym uses the address's host name for passkeys;
-- the address is stored only once openGym holds data, and a changed address is logged while the stored one is kept.
+- the address is stored only once openGym holds data, and a changed address is logged while the stored one is kept;
+- openGym and nginx run as unprivileged users, a fake Supervisor token is in none of their environments nor in PID 1's, openGym's user cannot read PID 1's environment, and data written by root (as before 1.1.0) is handed to openGym's user at start.
 
 The test does not cover address detection through Home Assistant, ingress or the real-address handling, or the aarch64 build. A CodeQL scan checks `address.mjs`.
 
