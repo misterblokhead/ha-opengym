@@ -69,7 +69,7 @@ Note that this token can use Home Assistant's API with full rights, and openGym 
 
 ## How this is made
 
-Built with Claude Code and reviewed by a human before each release. Every push is checked in CI by the Home Assistant app linter and by a startup test ([`tests/startup.sh`](tests/startup.sh)) that builds the image for amd64 and checks that:
+Built with Claude Code. Every push is checked in CI by the Home Assistant app linter and by a startup test ([`tests/startup.sh`](tests/startup.sh)) that builds the image for amd64 and checks that:
 
 - the app refuses to start with an address that has a path, or with an IPv4 or IPv6 address;
 - with a good address it starts and openGym's health check answers ok;
