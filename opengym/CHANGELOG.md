@@ -1,7 +1,17 @@
-## 1.0.1
+## [1.0.2] (openGym 1.4.3)
 
-openGym 1.4.3. An IP address is refused as the address: passkeys never work on one.
+### Changed
 
-## 1.0.0
+- The openGym base images are pinned by digest as well as by tag, so a re-pushed tag cannot change what gets built.
 
-openGym 1.4.3.
+### Added
+
+- README sections on what the app touches and how it is made, SECURITY.md, a funding file, and a release workflow.
+
+## [1.0.1] (openGym 1.4.3)
+
+An IP address is refused as the address: passkeys never work on one.
+
+## [1.0.0] (openGym 1.4.3)
+
+First release.
