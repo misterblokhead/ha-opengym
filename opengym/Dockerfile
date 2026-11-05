@@ -1,5 +1,5 @@
 # Both images are pinned by tag and multi-arch index digest; Dependabot updates the two together.
-FROM ghcr.io/duartesantos8/opengym-web:1.4.3@sha256:e77ef879d10549acc88a888e0cd4d566592c5680bee6436b05071678fcf8b512 AS web
+FROM ghcr.io/duartesantos8/opengym-web:1.4.4@sha256:33575782762f6cc9181f5e33616d55bf718bcd56338b714f22cb5d01e1adc278 AS web
 # The web image's CSP carries the hash of openGym's inline script, which changes per version.
 # Only frame-ancestors changes, so Home Assistant's ingress can frame the app.
 RUN printf '%s' "$CONTENT_SECURITY_POLICY" | sed "s/frame-ancestors 'none'/frame-ancestors 'self'/" > /tmp/csp \
